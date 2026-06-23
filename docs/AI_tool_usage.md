@@ -83,3 +83,20 @@ Setup self-contained Docker configurations for the backend database and API, and
      - path: ./backend/docker-compose.yml
    ```
    This keeps the backend's Docker configuration completely self-contained within the `backend/` directory, while allowing the root-level compose to easily include it.
+
+---
+
+## Phase 6: Frontend Initialization & Core Layout (2026-06-23)
+
+### Objective
+
+Initialize the Next.js frontend, install core libraries, configure global styles, set up TanStack Query, build the main sidebar layout, and create type-safe API client helpers.
+
+### **Key Decisions Made**:
+
+1. **Next.js 14 App Router**: Initialized the frontend inside `salary_management/frontend/` using Next.js 14 with TypeScript, Tailwind CSS, and App Router. This establishes a highly optimized foundation for our client-side application.
+2. **TanStack Query Integration**: Installed `@tanstack/react-query` and created a client-side `Providers` component to wrap the application. Configured sensible defaults (e.g., 5-minute stale time, disabled refetch on window focus) to ensure efficient data fetching and caching.
+3. **Type-Safe API Client**: Implemented a comprehensive, type-safe API client in `src/lib/api.ts` using native `fetch`. It defines robust TypeScript interfaces for all backend models (Employee, Department, Salary, Analytics) and exposes helper functions for all endpoints with proper query parameter serialization and error handling.
+4. **Responsive Sidebar Layout**: Built a professional, modern, light-themed layout in `src/app/layout.tsx` using Tailwind CSS and Lucide React. It features a persistent sidebar with navigation links to Dashboard, Employees, and Analytics, a sticky header, and a scrollable main content area.
+5. **Compilation Verification**: Created clean placeholder pages for `/employees` and `/analytics` to avoid 404 navigation errors, and verified that the entire frontend compiles successfully with zero linter or TypeScript errors.
+
