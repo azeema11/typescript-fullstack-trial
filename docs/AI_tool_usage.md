@@ -66,3 +66,20 @@ Implement Express controllers, routes, validation, and error handling middleware
 5. **Global Error Handling**: Centralized operational error handling (`AppError`), validation failures (`ZodError`), and Prisma database errors (e.g., unique constraint violations) into a centralized middleware.
 6. **Environment Configuration**: Added `.env` and `.env.example` templates to manage database connections, ports, and CORS origins securely.
 
+---
+
+## Phase 5: Backend Dockerization & Verification (2026-06-23)
+
+### Objective
+
+Setup self-contained Docker configurations for the backend database and API, and verify that the backend is fully functional, healthy, and responsive.
+
+### **Key Decisions Made**:
+
+1. **Single Source of Truth for Environment Variables**: The containers rely entirely on the backend `.env` file via `env_file: - .env`.
+2. **Decoupled Compose Architecture**: Created a self-contained `docker-compose.yml` inside `backend/` for the database and backend API. Configured the root-level `docker-compose.yml` to include the backend configuration using the `include` directive:
+   ```yaml
+   include:
+     - path: ./backend/docker-compose.yml
+   ```
+   This keeps the backend's Docker configuration completely self-contained within the `backend/` directory, while allowing the root-level compose to easily include it.
