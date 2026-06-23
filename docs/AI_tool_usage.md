@@ -78,10 +78,10 @@ Setup self-contained Docker configurations for the backend database and API, and
 
 1. **Single Source of Truth for Environment Variables**: The containers rely entirely on the backend `.env` file via `env_file: - .env`.
 2. **Decoupled Compose Architecture**: Created a self-contained `docker-compose.yml` inside `backend/` for the database and backend API. Configured the root-level `docker-compose.yml` to include the backend configuration using the `include` directive:
-   ```yaml
+  ```yaml
    include:
      - path: ./backend/docker-compose.yml
-   ```
+  ```
    This keeps the backend's Docker configuration completely self-contained within the `backend/` directory, while allowing the root-level compose to easily include it.
 
 ---
@@ -98,5 +98,42 @@ Initialize the Next.js frontend, install core libraries, configure global styles
 2. **TanStack Query Integration**: Installed `@tanstack/react-query` and created a client-side `Providers` component to wrap the application. Configured sensible defaults (e.g., 5-minute stale time, disabled refetch on window focus) to ensure efficient data fetching and caching.
 3. **Type-Safe API Client**: Implemented a comprehensive, type-safe API client in `src/lib/api.ts` using native `fetch`. It defines robust TypeScript interfaces for all backend models (Employee, Department, Salary, Analytics) and exposes helper functions for all endpoints with proper query parameter serialization and error handling.
 4. **Responsive Sidebar Layout**: Built a professional, modern, light-themed layout in `src/app/layout.tsx` using Tailwind CSS and Lucide React. It features a persistent sidebar with navigation links to Dashboard, Employees, and Analytics, a sticky header, and a scrollable main content area.
-5. **Compilation Verification**: Created clean placeholder pages for `/employees` and `/analytics` to avoid 404 navigation errors, and verified that the entire frontend compiles successfully with zero linter or TypeScript errors.
+
+---
+
+## Phase 7: Frontend Dashboard & Analytics (2026-06-23)
+
+### Objective
+
+Implement the main KPI Dashboard with real-time summary metrics and recent hires, and build the Analytics page with interactive Recharts visualizations for department comparisons, country distributions, salary histograms, and historical trends.
+
+### **Key Decisions Made**:
+
+1. **Dynamic KPI Dashboard**: Replaced the home page (`src/app/page.tsx`) with a client-side dashboard that fetches the global analytics summary and the 5 most recent hires dynamically. It displays 6 high-level KPI cards (Total Headcount, Active, On Leave, Inactive, Departments, Countries) with custom colors and icons, featuring loading skeletons and error fallback states.
+2. **Recharts Integration with Hydration Safety**: Built the Analytics page (`src/app/analytics/page.tsx`) using Recharts. Implemented a client-side mount check (`isMounted`) to fully prevent Next.js SSR hydration mismatches, which are common with SVG-based charting libraries.
+3. **Local Currency Alignment UX**: Since salaries are stored in local currencies (USD, INR, EUR, etc.), displaying them on a single scale would be misleading. I designed an elegant UX where:
+  - **Department Comparison** (Bar Chart of Average and Median salaries) is filterable by Currency.
+  - **Salary Distribution** (Histogram of headcount ranges) and **Historical Trends** (5-year Line Chart of average salaries) are filterable by Country.
+  - **Global Distribution** (Pie Chart of headcount) remains global since headcount is currency-agnostic.
+4. **TypeScript and ESLint Strictness**: Resolved all third-party type quirks with Recharts' Tooltip formatter by using explicit `any` type casting combined with targeted `// eslint-disable-next-line @typescript-eslint/no-explicit-any` comments, ensuring robust compilation and strict ESLint compliance.
+
+---
+
+## Phase 8: Frontend Dockerization & Verification (2026-06-23)
+
+### Objective
+
+Create a Dockerfile and docker-compose configuration for the Next.js frontend, integrate it with the root-level compose stack, and verify that all services (database, backend, and frontend) build and run seamlessly.
+
+### **Key Decisions Made**:
+
+1. **Single-Stage Alpine Dockerfile**: Created `salary_management/frontend/Dockerfile` using `node:20-alpine`. It copies package files, installs dependencies, copies configuration and source files, copies the build-time `.env` file, builds Next.js, and exposes port 3000. This mirrors the backend's Dockerfile structure perfectly.
+2. **Decoupled Frontend Compose**: Created a self-contained `docker-compose.yml` inside `frontend/` defining the `frontend` service. Configured the root-level `docker-compose.yml` to include the frontend using the `include` directive:
+   ```yaml
+   include:
+     - path: ./backend/docker-compose.yml
+     - path: ./frontend/docker-compose.yml
+   ```
+   This maintains the decoupled architecture where each service's Docker configuration remains completely self-contained in its own directory.
+3. **Build Optimization with .dockerignore**: Created `.dockerignore` files for both frontend and backend to prevent copying local `node_modules`, `.next`, and build artifacts into the build context, speeding up builds and preventing build-time conflicts.
 
