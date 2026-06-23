@@ -83,7 +83,7 @@ erDiagram
         string currency
         date effectiveDate
         date endDate "Indexed (NULL = Active)"
-        SalaryReason reason
+        SalaryRevisionType revisionType
         datetime createdAt
     }
     Department ||--o{ Employee : "has many"
@@ -95,7 +95,7 @@ erDiagram
 ### Enums
 
 - `**EmployeeStatus**`: `active | inactive | on_leave`
-- `**SalaryReason**`: `initial | promotion | annual_review | adjustment | relocation`
+- `**SalaryRevisionType**`: `initial | promotion | annual_review | adjustment | relocation`
 
 ### Database Indexes (Crucial for 10,000+ records)
 
@@ -175,7 +175,7 @@ Fetch a single employee with their complete salary history.
         "currency": "USD",
         "effectiveDate": "2023-01-01T00:00:00.000Z",
         "endDate": null,
-        "reason": "promotion"
+        "revisionType": "promotion"
       },
       {
         "id": "s541a6eb-2346-b4a4-7b0b-3f5e532c0403",
@@ -183,7 +183,7 @@ Fetch a single employee with their complete salary history.
         "currency": "USD",
         "effectiveDate": "2021-03-15T00:00:00.000Z",
         "endDate": "2022-12-31T00:00:00.000Z",
-        "reason": "initial"
+        "revisionType": "initial"
       }
     ]
   }
@@ -243,7 +243,7 @@ Record a salary adjustment (promotion, adjustment, relocation) by closing the cu
     "baseSalary": 140000,
     "currency": "USD",
     "effectiveDate": "2026-07-01",
-    "reason": "promotion",
+    "revisionType": "promotion",
     "newCountry": "US",
     "newCity": "San Francisco"
   }

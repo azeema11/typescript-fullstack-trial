@@ -20,7 +20,7 @@ The goal of this project is to build a web-based Employee Salary Management Syst
   - Track every salary change (hikes, promotions, relocations, adjustments) as a historical record.
   - Active salary is represented by `endDate IS NULL`.
   - Salary changes close the current active record (`endDate` set to change date) and insert a new active record.
-  - Fields: ID (UUID), Employee ID (UUID), Base Salary (Decimal), Currency, Effective Date, End Date, Reason (Enum: `initial`, `promotion`, `annual_review`, `adjustment`, `relocation`).
+  - Fields: ID (UUID), Employee ID (UUID), Base Salary (Decimal), Currency, Effective Date, End Date, Revision Type (Enum: `initial`, `promotion`, `annual_review`, `adjustment`, `relocation`).
 - **Querying & Pagination**:
   - Cursor-based pagination for the 10,000 employee list to ensure high performance.
   - Comprehensive filtering by Department, Country, Status, and Salary Range.

@@ -19,3 +19,17 @@ Establish the product requirements, system architecture, API schemas, and techni
 5. **Cursor-Based Pagination**: Utilizing the unique `employeeCode` in combination with secondary sorting fields (like `firstName` or `hireDate`) to ensure deterministic ordering and constant-time $O(1)$ query performance over 10,000+ records.
 6. **Static Constants**: Storing countries and currencies in code as TypeScript constants with Zod validation for the time being to reduce complexity.
 
+---
+
+## Phase 2: Backend Initialization & Database Schema (2026-06-23)
+
+### Objective
+
+Initialize the backend project configuration, define the database schema with UUID-based IDs, and write seed/migration scripts.
+
+### **Key Decisions Made**:
+
+1. **UUID Schema Implementation**: Defined `id` as `String @id @default(uuid())` across `Department`, `Employee`, and `Salary` models in `schema.prisma`.
+2. **Performance Indexes**: Kept indexes on `Employee(departmentId)`, `Employee(country)`, `Employee(status)`, `Salary(employeeId)`, `Salary(endDate)`, and composite `Salary(employeeId, endDate)` to ensure sub-50ms query speeds under scale.
+3. **Batch Seeding with UUIDs**: Implemented a seed script that creates 10,000 employees in batches of 500. It resolves relationships using the generated UUIDs from `prisma.department.create` and `prisma.employee.create` dynamically.
+

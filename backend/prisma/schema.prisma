@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum EmployeeStatus {
+  active
+  inactive
+  on_leave
+}
+
+enum SalaryRevisionType {
+  initial
+  promotion
+  annual_review
+  adjustment
+  relocation
+}
+
+model Department {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  employees Employee[]
+  createdAt DateTime   @default(now())
+}
+
+model Employee {
+  id           String         @id @default(uuid())
+  employeeCode String         @unique
+  firstName    String
+  lastName     String
+  email        String         @unique
+  dateOfBirth  DateTime
+  gender       String
+  hireDate     DateTime
+  endDate      DateTime?
+  departmentId String
+  department   Department     @relation(fields: [departmentId], references: [id])
+  designation  String
+  country      String
+  city         String
+  status       EmployeeStatus @default(active)
+  statusNote   String?
+  salaries     Salary[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([departmentId])
+  @@index([country])
+  @@index([status])
+}
+
+model Salary {
+  id            String       @id @default(uuid())
+  employeeId    String
+  employee      Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  baseSalary    Decimal      @db.Decimal(15, 2)
+  currency      String
+  effectiveDate DateTime
+  endDate       DateTime?
+  revisionType  SalaryRevisionType
+  createdAt     DateTime     @default(now())
+
+  @@index([employeeId])
+  @@index([endDate])
+  @@index([employeeId, endDate])
+}
