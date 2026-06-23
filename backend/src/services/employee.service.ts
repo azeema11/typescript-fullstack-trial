@@ -66,7 +66,7 @@ export class EmployeeService {
     };
 
     if (cursor) {
-      queryOptions.cursor = { id: cursor };
+      queryOptions.cursor = { employeeCode: cursor };
       queryOptions.skip = 1; // Skip the cursor itself
     }
 
@@ -75,18 +75,18 @@ export class EmployeeService {
       queryOptions.orderBy = [
         { firstName: sortOrder },
         { lastName: sortOrder },
-        { id: sortOrder }, // Ensure deterministic ordering for cursor pagination
+        { employeeCode: sortOrder }, // Ensure deterministic ordering for cursor pagination
       ];
     } else if (sortBy === "hireDate") {
       queryOptions.orderBy = [
         { hireDate: sortOrder },
-        { id: sortOrder },
+        { employeeCode: sortOrder },
       ];
     } else if (sortBy === "salary") {
-      // Sorting by salary fallback to hireDate + id in DB
+      // Sorting by salary fallback to hireDate + employeeCode in DB
       queryOptions.orderBy = [
         { hireDate: sortOrder },
-        { id: sortOrder },
+        { employeeCode: sortOrder },
       ];
     }
 
@@ -95,7 +95,7 @@ export class EmployeeService {
     let nextCursor: string | undefined = undefined;
     if (employees.length > limit) {
       const nextItem = employees.pop();
-      nextCursor = nextItem?.id;
+      nextCursor = nextItem?.employeeCode;
     }
 
     // Format the response to flatten the active salary

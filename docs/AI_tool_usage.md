@@ -49,3 +49,20 @@ Implement core backend services for employees, departments, and analytics, and w
 4. **PostgreSQL Window Functions**: Used raw SQL queries in `AnalyticsService` to leverage PostgreSQL's native `percentile_cont` function for calculating exact median salaries, which is highly efficient and accurate at scale.
 5. **Mocked Prisma Unit Testing**: Wrote fast, deterministic unit tests using Vitest and mocked Prisma clients, achieving 100% test reliability and sub-250ms execution times.
 
+---
+
+## Phase 4: Backend API Endpoints & Middleware (2026-06-23)
+
+### Objective
+
+Implement Express controllers, routes, validation, and error handling middleware to expose the business logic services as a RESTful API.
+
+### **Key Decisions Made**:
+
+1. **Zod Validation Middleware**: Created a reusable `validate` middleware to parse and validate incoming HTTP request payloads (`body`, `query`, and `params`) against strict Zod schemas, automatically casting types (e.g., parsing limit strings to integers).
+2. **UUID and UUID-Format Validations**: Configured Zod validation to strictly enforce UUID formats for path parameters (e.g., `/api/employees/:id`) and relational foreign keys (e.g., `departmentId`).
+3. **Express Controller Layer**: Implemented `EmployeeController`, `DepartmentController`, and `AnalyticsController` to parse validated requests, invoke business logic services, and return consistent JSON structures (e.g., wrapping responses in `{ status: "success", data: ... }`).
+4. **Serialization of Decimals**: Integrated the `serializeDecimal` helper into controllers to automatically convert Prisma's internal Decimal representation to human-readable strings before sending JSON responses.
+5. **Global Error Handling**: Centralized operational error handling (`AppError`), validation failures (`ZodError`), and Prisma database errors (e.g., unique constraint violations) into a centralized middleware.
+6. **Environment Configuration**: Added `.env` and `.env.example` templates to manage database connections, ports, and CORS origins securely.
+
