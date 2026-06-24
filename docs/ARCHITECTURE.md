@@ -350,3 +350,22 @@ Historical average salary trends over the last 5 years, grouped by country/curre
 - **Decision**: All database primary keys are UUID strings (`@id @default(uuid())`) to prevent ID enumeration and enhance security. However, for cursor-based pagination, we utilize the unique `employeeCode` in combination with secondary sorting fields (like `firstName` or `hireDate`) to ensure deterministic ordering.
 - **Trade-off**: While UUIDs are non-sequential and not ideal for sorting/cursor pagination, `employeeCode` is unique, indexed, and sequential or semi-sequential, making it an excellent cursor and tie-breaker. This gives us the security benefits of UUIDs for internal routing and database relations, combined with the readability and performance of `employeeCode` for pagination.
 
+---
+
+## 5. Running the Application
+
+For detailed setup instructions, environment variable configurations, and different ways to run the application (Docker Compose, Concurrently, or Individually), please refer to the [Root README.md](../README.md).
+
+### Quick Start (Docker Compose)
+To spin up the entire full-stack application (Database, Backend, and Frontend) automatically:
+```bash
+npm run dev:with_docker
+```
+This will start:
+- **Database**: PostgreSQL 16 (port `5432`)
+- **Backend API**: Express (port `3001`)
+- **Frontend Web App**: Next.js (port `3000`)
+
+Access the web app at [http://localhost:3000](http://localhost:3000).
+
+

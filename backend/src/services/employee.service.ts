@@ -106,7 +106,7 @@ export class EmployeeService {
         ...rest,
         activeSalary: activeSalary
           ? {
-              baseSalary: activeSalary.baseSalary.toString(),
+              baseSalary: activeSalary.baseSalary,
               currency: activeSalary.currency,
             }
           : null,
@@ -137,7 +137,18 @@ export class EmployeeService {
       throw new AppError("Employee not found", 404);
     }
 
-    return employee;
+    // Find active salary from the history (where endDate is null)
+    const activeSalary = employee.salaries.find((sal) => sal.endDate === null) || null;
+
+    return {
+      ...employee,
+      activeSalary: activeSalary
+        ? {
+            baseSalary: activeSalary.baseSalary,
+            currency: activeSalary.currency,
+          }
+        : null,
+    };
   }
 
   /**

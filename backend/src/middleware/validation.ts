@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject } from "zod";
+import { AnyZodObject, ZodError } from "zod";
 
 export const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -9,12 +9,25 @@ export const validate = (schema: AnyZodObject) => {
         query: req.query,
         params: req.params,
       });
-      // Replace with parsed data to ensure correct types (e.g. string to number conversion)
-      req.body = parsed.body;
-      req.query = parsed.query;
-      req.params = parsed.params;
+      // Re-assign validated properties back to the request object
+      // This ensures default values and transforms from Zod are applied
+      const safeParsed = parsed as any;
+      if (safeParsed.body) req.body = safeParsed.body;
+      if (safeParsed.query) req.query = safeParsed.query;
+      if (safeParsed.params) req.params = safeParsed.params;
+
       next();
     } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({
+          status: "fail",
+          message: "Invalid request data",
+          errors: error.issues.map((e) => ({
+            field: e.path.join("."),
+            message: e.message,
+          })),
+        });
+      }
       next(error);
     }
   };

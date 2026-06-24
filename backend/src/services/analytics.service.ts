@@ -108,10 +108,22 @@ export class AnalyticsService {
 
     const rawSalaries = salaries.map((s) => s.baseSalary);
 
-    // Generate dynamic buckets based on min and max salary config
-    const { minSalary, maxSalary, currency } = config;
+    if (rawSalaries.length === 0) {
+      return {
+        currency: config.currency,
+        buckets: [],
+      };
+    }
+
+    // Generate dynamic buckets based on actual min and max salaries in the database
+    const minSalary = Math.min(...rawSalaries);
+    const maxSalary = Math.max(...rawSalaries);
     const bucketCount = 5;
-    const step = (maxSalary - minSalary) / bucketCount;
+    
+    // Handle edge case where min and max are equal (e.g., only one employee or all have same salary)
+    const step = maxSalary === minSalary 
+      ? (minSalary === 0 ? 10000 : minSalary * 0.1) 
+      : (maxSalary - minSalary) / bucketCount;
 
     const buckets: { range: string; count: number }[] = [];
     for (let i = 0; i < bucketCount; i++) {
@@ -145,7 +157,7 @@ export class AnalyticsService {
     });
 
     return {
-      currency,
+      currency: config.currency,
       buckets,
     };
   }
@@ -157,7 +169,7 @@ export class AnalyticsService {
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 5 }, (_, i) => currentYear - 4 + i); // e.g., 2022, 2023, 2024, 2025, 2026
 
-    const trends: Record<string, { country: string; currency: string; data: { year: number; avgSalary: string }[] }> = {};
+    const trends: Record<string, { country: string; currency: string; data: { year: number; avgSalary: string; headcount: number }[] }> = {};
 
     // For each year, we run a query to find the average salary of employees active on Dec 31st of that year
     for (const year of years) {
@@ -167,6 +179,7 @@ export class AnalyticsService {
         SELECT 
           e.country as "country",
           s.currency as "currency",
+          COUNT(e.id)::int as "headcount",
           ROUND(AVG(s."baseSalary")::numeric, 2)::text as "avgSalary"
         FROM "Employee" e
         JOIN "Salary" s ON e.id = s."employeeId"
@@ -179,7 +192,7 @@ export class AnalyticsService {
       `;
 
       result.forEach((row) => {
-        const key = row.country;
+        const key = `${row.country}_${row.currency}`;
         if (!trends[key]) {
           trends[key] = {
             country: row.country,
@@ -190,6 +203,7 @@ export class AnalyticsService {
         trends[key].data.push({
           year,
           avgSalary: row.avgSalary,
+          headcount: row.headcount,
         });
       });
     }

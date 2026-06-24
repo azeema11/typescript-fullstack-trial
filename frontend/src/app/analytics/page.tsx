@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { convertCurrency } from "@/lib/constants";
 import {
   ResponsiveContainer,
   BarChart,
@@ -92,15 +93,45 @@ export default function AnalyticsPage() {
     );
   }
 
-  // Filter department data by selected currency
-  const filteredDeptData =
-    departmentData
-      ?.filter((item) => item.currency === selectedCurrency)
-      .map((item) => ({
-        department: item.department,
-        "Average Salary": parseFloat(item.avgSalary),
-        "Median Salary": parseFloat(item.medianSalary),
-      })) || [];
+  // Convert and aggregate department data to the selected currency
+  const filteredDeptData = (() => {
+    if (!departmentData) return [];
+    
+    // Group by department
+    const deptGroups: Record<string, { totalSalary: number; totalHeadcount: number; medianSalaries: number[] }> = {};
+    
+    departmentData.forEach((item) => {
+      const dept = item.department;
+      const headcount = item.headcount;
+      const avgSalary = parseFloat(item.avgSalary);
+      const medianSalary = parseFloat(item.medianSalary);
+      
+      // Convert to selected currency
+      const avgInSelected = convertCurrency(avgSalary, item.currency, selectedCurrency);
+      const medianInSelected = convertCurrency(medianSalary, item.currency, selectedCurrency);
+      
+      if (!deptGroups[dept]) {
+        deptGroups[dept] = { totalSalary: 0, totalHeadcount: 0, medianSalaries: [] };
+      }
+      
+      deptGroups[dept].totalSalary += avgInSelected * headcount;
+      deptGroups[dept].totalHeadcount += headcount;
+      deptGroups[dept].medianSalaries.push(medianInSelected);
+    });
+    
+    return Object.entries(deptGroups).map(([dept, data]) => {
+      const avg = data.totalHeadcount > 0 ? data.totalSalary / data.totalHeadcount : 0;
+      const median = data.medianSalaries.length > 0 
+        ? data.medianSalaries.reduce((sum, val) => sum + val, 0) / data.medianSalaries.length 
+        : 0;
+        
+      return {
+        department: dept,
+        "Average Salary": Math.round(avg),
+        "Median Salary": Math.round(median),
+      };
+    });
+  })();
 
   // Format country data for Pie Chart
   const pieChartData =
@@ -116,17 +147,49 @@ export default function AnalyticsPage() {
       Employees: b.count,
     })) || [];
 
-  // Format trend data for selected country
-  const selectedCountryTrend = trendData?.find((t) => t.country === selectedCountry);
-  const lineChartData =
-    selectedCountryTrend?.data.map((d) => ({
-      year: d.year.toString(),
-      "Average Salary": parseFloat(d.avgSalary),
-    })) || [];
+  // Format trend data for selected country (converting and aggregating multiple currencies to local currency)
+  const lineChartData = (() => {
+    if (!trendData) return [];
+    
+    const targetCurrency = COUNTRIES_CONFIG[selectedCountry]?.currency || "USD";
+    
+    // Find all trend series for the selected country
+    const countryTrends = trendData.filter((t) => t.country === selectedCountry);
+    
+    // Group by year
+    const yearGroups: Record<number, { totalSalary: number; totalHeadcount: number }> = {};
+    
+    countryTrends.forEach((trend) => {
+      trend.data.forEach((d) => {
+        const year = d.year;
+        const avgSalary = parseFloat(d.avgSalary);
+        const headcount = d.headcount || 0;
+        
+        // Convert average salary to target local currency
+        const convertedAvg = convertCurrency(avgSalary, trend.currency, targetCurrency);
+        
+        if (!yearGroups[year]) {
+          yearGroups[year] = { totalSalary: 0, totalHeadcount: 0 };
+        }
+        
+        yearGroups[year].totalSalary += convertedAvg * headcount;
+        yearGroups[year].totalHeadcount += headcount;
+      });
+    });
+    
+    // Map to array sorted by year
+    return Object.entries(yearGroups)
+      .map(([year, data]) => {
+        const avg = data.totalHeadcount > 0 ? data.totalSalary / data.totalHeadcount : 0;
+        return {
+          year: year.toString(),
+          "Average Salary": Math.round(avg),
+        };
+      })
+      .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+  })();
 
-  const currencies = Array.from(
-    new Set(departmentData?.map((item) => item.currency) || ["USD"])
-  );
+  const currencies = ["USD", "GBP", "EUR", "INR", "CAD", "AUD", "JPY", "BRL", "SGD", "AED"];
 
   const countries = Object.keys(COUNTRIES_CONFIG);
 

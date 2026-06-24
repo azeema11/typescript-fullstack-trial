@@ -1,0 +1,7 @@
+services:
+  backend:
+    ports:
+      - "9229:9229"
+    volumes:
+      - ./src:/app/src
+    command: ["sh", "-c", "npx prisma migrate deploy && npm run dev:debug"]

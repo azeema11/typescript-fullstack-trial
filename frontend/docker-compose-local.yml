@@ -1,0 +1,8 @@
+services:
+  frontend:
+    ports:
+      - "9230:9230"
+      - "9231:9231"
+    volumes:
+      - ./src:/app/src
+    command: ["npm", "run", "dev"]

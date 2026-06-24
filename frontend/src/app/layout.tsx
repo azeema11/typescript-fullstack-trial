@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Link from "next/link";
-import { LayoutDashboard, Users, BarChart3, DollarSign } from "lucide-react";
+import { LayoutDashboard, Users, BarChart3, Coins } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +27,7 @@ export default function RootLayout({
               {/* Logo / Header */}
               <div className="flex h-16 items-center gap-2 border-b border-slate-100 px-6">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-200">
-                  <DollarSign className="h-6 w-6" />
+                  <Coins className="h-6 w-6" />
                 </div>
                 <div>
                   <h1 className="text-base font-bold leading-none text-slate-900">ACME Inc.</h1>

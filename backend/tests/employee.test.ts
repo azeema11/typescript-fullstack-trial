@@ -55,7 +55,7 @@ describe("EmployeeService", () => {
       );
       expect(result.data).toHaveLength(1);
       expect(result.data[0].activeSalary).toEqual({
-        baseSalary: "100000",
+        baseSalary: mockEmployees[0].salaries[0].baseSalary,
         currency: "USD",
       });
       expect(result.nextCursor).toBeUndefined();
@@ -88,8 +88,8 @@ describe("EmployeeService", () => {
         lastName: "Doe",
         department: { id: "dept-uuid-1", name: "Engineering" },
         salaries: [
-          { id: "sal-uuid-2", baseSalary: new Prisma.Decimal(110000), currency: "USD", revisionType: SalaryRevisionType.promotion },
-          { id: "sal-uuid-1", baseSalary: new Prisma.Decimal(100000), currency: "USD", revisionType: SalaryRevisionType.initial },
+          { id: "sal-uuid-2", baseSalary: new Prisma.Decimal(110000), currency: "USD", revisionType: SalaryRevisionType.promotion, endDate: null },
+          { id: "sal-uuid-1", baseSalary: new Prisma.Decimal(100000), currency: "USD", revisionType: SalaryRevisionType.initial, endDate: new Date() },
         ],
       };
 
@@ -104,7 +104,13 @@ describe("EmployeeService", () => {
           salaries: { orderBy: { effectiveDate: "desc" } },
         },
       });
-      expect(result).toEqual(mockEmployee);
+      expect(result).toEqual({
+        ...mockEmployee,
+        activeSalary: {
+          baseSalary: mockEmployee.salaries[0].baseSalary,
+          currency: mockEmployee.salaries[0].currency,
+        },
+      });
     });
 
     it("should throw 404 AppError if employee not found", async () => {

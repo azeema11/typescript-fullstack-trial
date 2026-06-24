@@ -1,0 +1,18 @@
+{
+  "name": "salary-management",
+  "version": "1.0.0",
+  "description": "ACME Salary Management System",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently --kill-others-on-fail -n \"backend,frontend\" -c \"blue,magenta\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:with_docker": "docker-compose -f docker-compose-local.yml up",
+    "build": "concurrently -n \"backend,frontend\" -c \"blue,magenta\" \"npm run build:backend\" \"npm run build:frontend\"",
+    "build:backend": "npm run build --prefix backend",
+    "build:frontend": "npm run build --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

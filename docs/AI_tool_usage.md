@@ -137,3 +137,24 @@ Create a Dockerfile and docker-compose configuration for the Next.js frontend, i
    This maintains the decoupled architecture where each service's Docker configuration remains completely self-contained in its own directory.
 3. **Build Optimization with .dockerignore**: Created `.dockerignore` files for both frontend and backend to prevent copying local `node_modules`, `.next`, and build artifacts into the build context, speeding up builds and preventing build-time conflicts.
 
+---
+
+## Phase 9: Frontend Employee Directory & Detail Pages (2026-06-24)
+
+### Objective
+
+Implement the Employee Directory page with searching, filtering, sorting, and cursor-based pagination, create the Employee Detail page with active compensation cards and a vertical salary history timeline, and build interactive modals for adding employees, updating profiles, adjusting salaries, recording leaves, and terminating employment.
+
+### **Key Decisions Made**:
+
+1. **Bidirectional Cursor Pagination**: Implemented bidirectional cursor-based pagination on the Employee Directory page (`src/app/employees/page.tsx`) by maintaining a history of cursors in React state (`cursorHistory`). This supports both "Next" and "Previous" pagination buttons.
+2. **Debounced Search and Multi-Filters**: Added a debounced search input (400ms delay) to prevent excessive API requests, and integrated multi-filter dropdowns for Department, Country, and Status, resetting pagination state on any filter change to ensure data consistency.
+3. **Modular and Validated Action Modals**: Created 5 reusable modal components in `src/components/` with robust client-side validation and React Query mutation integration:
+   - `AddEmployeeModal`: Validates and creates a new employee and their initial salary in a single transaction. Pre-fills currency based on country selection.
+   - `UpdateProfileModal`: Updates non-compensation details (name, designation, city).
+   - `AdjustSalaryModal`: Adjusts base salary with effective dates and revision types. Conditionally displays "New Country" and "New City" inputs for relocation revisions, automatically updating the currency.
+   - `RecordLeaveModal`: Records leaves of absence, changing status to `on_leave` with a status note.
+   - `TerminateModal`: Handles soft-deletes with a prominent warning banner and termination reason input.
+4. **Vertical Compensation Timeline**: Implemented a vertical timeline on the Employee Detail page (`src/app/employees/[id]/page.tsx`) showing every salary revision. It calculates and displays the exact percentage increase between consecutive revisions dynamically.
+
+

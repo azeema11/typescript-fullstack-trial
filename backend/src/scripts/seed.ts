@@ -42,6 +42,19 @@ const TERMINATION_NOTES = [
   "Retired",
 ];
 
+const SEED_SALARY_RANGES: Record<string, { minSalary: number; maxSalary: number }> = {
+  US: { minSalary: 45000, maxSalary: 250000 },
+  UK: { minSalary: 35000, maxSalary: 180000 },
+  IN: { minSalary: 300000, maxSalary: 4500000 },
+  DE: { minSalary: 40000, maxSalary: 150000 },
+  CA: { minSalary: 45000, maxSalary: 180000 },
+  AU: { minSalary: 50000, maxSalary: 190000 },
+  JP: { minSalary: 3500000, maxSalary: 15000000 },
+  BR: { minSalary: 30000, maxSalary: 200000 },
+  SG: { minSalary: 40000, maxSalary: 180000 },
+  AE: { minSalary: 60000, maxSalary: 300000 },
+};
+
 async function main() {
   console.log("Starting database seeding...");
 
@@ -141,9 +154,11 @@ async function main() {
       const tenureInYears = (endDate ? endDate.getTime() : Date.now() - hireDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
       const reviewCount = Math.min(4, Math.max(1, Math.floor(tenureInYears) + 1));
 
+      const salaryRange = SEED_SALARY_RANGES[country] || { minSalary: 30000, maxSalary: 150000 };
+
       let currentSalary = faker.number.int({
-        min: countryConfig.minSalary,
-        max: countryConfig.minSalary + (countryConfig.maxSalary - countryConfig.minSalary) * 0.4, // start on lower half
+        min: salaryRange.minSalary,
+        max: salaryRange.minSalary + (salaryRange.maxSalary - salaryRange.minSalary) * 0.4, // start on lower half
       });
 
       let currentEffectiveDate = new Date(hireDate);

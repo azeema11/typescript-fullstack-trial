@@ -146,6 +146,7 @@ export interface AnalyticsSalaryDistribution {
 export interface TrendDataPoint {
   year: number;
   avgSalary: string;
+  headcount?: number;
 }
 
 export interface AnalyticsSalaryTrend {
