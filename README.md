@@ -1,4 +1,4 @@
-# ACME Employee Salary Management System
+# Employee Salary Management System
 
 A high-performance, full-stack web application designed for ACME's HR managers to manage employee profiles, track comprehensive salary histories using a temporal data model, and analyze compensation metrics across 10,000+ global employees.
 
